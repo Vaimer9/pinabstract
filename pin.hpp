@@ -6,16 +6,6 @@ enum Direction { INPUT, OUTPUT };
 enum PinType { GPIO, PWM };
 
 /*
- * Represents a normal Pin
- */
-class Pin
-{
-public:
-    uint pin;
-
-};
-
-/*
  * Represents a GPIO pin, can have Input and Output directions
  */
 class GpioPin
