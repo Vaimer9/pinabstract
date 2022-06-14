@@ -2,7 +2,7 @@
 #include <pico.h>
 #include "pin.hpp"
 
-#define PINOUT 25
+#define PINOUT 0
 
 void on_pwm_wrap() {
     static int fade = 0;
@@ -30,11 +30,22 @@ int main(void)
 {
     PwmPin pwm_pin(PINOUT, 4.f);
     pwm_pin.set_handler(on_pwm_wrap);
-    pwm_pin.build();
-    pwm_pin.start_pwd();
+    pwm_pin.init();
+    pwm_pin.enable();
+    
+    GpioPin gpio_pin(15);
+    gpio_pin.set_dir(OUTPUT);
+    gpio_pin.init();
 
     while (true)
-        tight_loop_contents();
+    {
+        pwm_pin.disable();
+
+        gpio_pin.on(3000);
+
+        pwm_pin.enable();
+        gpio_pin.off(3000);
+    }
 
     return 0;
 }

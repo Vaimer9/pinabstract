@@ -39,6 +39,7 @@ public:
     PwmPin(uint, float);
     void set_handler(void(*)());
     void set_config(pwm_config);
-    void build();
-    void start_pwd();
+    void init();
+    void enable();
+    void disable();
 };

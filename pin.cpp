@@ -79,7 +79,7 @@ void PwmPin::set_config(pwm_config config_i)
     config = config_i;
 }
 
-void PwmPin::build()
+void PwmPin::init()
 {
     /*
      * Exit if handler isn't initialized
@@ -92,13 +92,19 @@ void PwmPin::build()
 
     // Clear Interrupt Request
     pwm_clear_irq(slice);
-    pwm_set_irq_enabled(slice, true);
     irq_set_exclusive_handler(PWM_IRQ_WRAP, handler);
+    pwm_set_irq_enabled(slice, true);
     irq_set_enabled(PWM_IRQ_WRAP, true);
+    pwm_config_set_clkdiv(&config, div);
+    pwm_init(slice, &config, false);
 }
 
-void PwmPin::start_pwd()
+void PwmPin::enable()
 {
-    pwm_config_set_clkdiv(&config, div);
-    pwm_init(slice, &config, true);
+    pwm_set_enabled(slice, true);
+}
+
+void PwmPin::disable()
+{
+    pwm_set_enabled(slice, false);
 }
