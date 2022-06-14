@@ -23,7 +23,7 @@ void GpioPin::set_dir(Direction dir_i)
 
 void GpioPin::init()
 {
-    bool direction = (dir == OUTPUT) ? true : false;    
+    bool direction = (dir == OUTPUT) ? true : false;
     gpio_init(pin);
     gpio_set_dir(pin, direction);
 }
@@ -50,17 +50,23 @@ void GpioPin::off(int delay)
     sleep_ms(delay);
 }
 
-PinType GpioPin::pin_type()
-{
-    return GPIO;
-}
-
 /* class PwmPin */
 PwmPin::PwmPin(uint pin_i)
 {
     pin = pin_i;
+    div = 4.f;
     gpio_set_function(pin_i, GPIO_FUNC_PWM);
     slice = pwm_gpio_to_slice_num(pin_i);
+    config = pwm_get_default_config();
+}
+
+PwmPin::PwmPin(uint pin_i, float div_i)
+{
+    pin = pin_i;
+    div = div_i;
+    gpio_set_function(pin_i, GPIO_FUNC_PWM);
+    slice = pwm_gpio_to_slice_num(pin_i);
+    config = pwm_get_default_config();
 }
 
 void PwmPin::set_handler(void(*func)())
@@ -68,13 +74,23 @@ void PwmPin::set_handler(void(*func)())
     handler = func;
 }
 
-void PwmPin::set_config(pwm_config* config_i)
+void PwmPin::set_config(pwm_config config_i)
 {
     config = config_i;
 }
 
 void PwmPin::build()
 {
+    /*
+     * Exit if handler isn't initialized
+     * Can't print to stderr because can't be sure if stdio is initialized
+     */
+    if (handler == NULL)
+    {
+        return;
+    }
+
+    // Clear Interrupt Request
     pwm_clear_irq(slice);
     pwm_set_irq_enabled(slice, true);
     irq_set_exclusive_handler(PWM_IRQ_WRAP, handler);
@@ -83,11 +99,6 @@ void PwmPin::build()
 
 void PwmPin::start_pwd()
 {
-    pwm_config_set_clkdiv(config, 4.f);
-    pwm_init(slice, config, true);
-}
-
-PinType PwmPin::pin_type()
-{
-    return PWM;
+    pwm_config_set_clkdiv(&config, div);
+    pwm_init(slice, &config, true);
 }

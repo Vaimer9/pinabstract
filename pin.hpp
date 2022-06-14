@@ -3,7 +3,6 @@
 #include <pico/stdlib.h>
 
 enum Direction { INPUT, OUTPUT };
-enum PinType { GPIO, PWM };
 
 /*
  * Represents a GPIO pin, can have Input and Output directions
@@ -22,7 +21,6 @@ public:
     void off();
     void on(int);
     void off(int);
-    PinType pin_type();
 };
 
 /*
@@ -32,15 +30,15 @@ class PwmPin
 {
     uint pin;
     uint slice;
-    pwm_config* config;
+    pwm_config config;
+    float div;
     void(*handler)();
     
 public:
     PwmPin(uint);
+    PwmPin(uint, float);
     void set_handler(void(*)());
-    void set_config(pwm_config*);
+    void set_config(pwm_config);
     void build();
     void start_pwd();
-    PinType pin_type();
 };
-
