@@ -14,26 +14,21 @@ class GpioPin
 
 public:
     GpioPin(uint, Direction);
-    GpioPin(uint);
-    void init();
-    void set_dir(Direction);
-    void on();
-    void off();
-    void on(int);
-    void off(int);
+    bool value();
+    void value(bool);
 };
 
 /*
  * Represents a pwm controlled gpio pin
  */
-class PwmPin 
+class PwmPin
 {
     uint pin;
     uint slice;
     pwm_config config;
     float div;
     void(*handler)();
-    
+
 public:
     PwmPin(uint);
     PwmPin(uint, float);

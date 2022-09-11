@@ -1,53 +1,27 @@
-#include "pin.hpp"
+#include "pinabstract.hpp"
 #include <pico/stdlib.h>
 #include <hardware/pwm.h>
 #include <hardware/irq.h>
 
-/* class GpioPin */
+
+/* GpioPin class  */
 GpioPin::GpioPin(uint pin_no, Direction direction)
 {
     dir = direction;
     pin = pin_no;
-}
-
-GpioPin::GpioPin(uint pin_no)
-{
-    dir = OUTPUT;
-    pin = pin_no;
-}
-
-void GpioPin::set_dir(Direction dir_i)
-{
-    dir = dir_i;
-}
-
-void GpioPin::init()
-{
-    bool direction = (dir == OUTPUT) ? true : false;
+    bool dire = (dir == OUTPUT) ? true : false;
     gpio_init(pin);
     gpio_set_dir(pin, direction);
 }
 
-void GpioPin::on()
+bool GpioPin::value()
 {
-    gpio_put(pin, true);
+    return gpio_get(pin);
 }
 
-void GpioPin::off()
+void GpioPin::value(bool val)
 {
-    gpio_put(pin, false);
-}
-
-void GpioPin::on(int delay)
-{
-    gpio_put(pin, true);
-    sleep_ms(delay);
-}
-
-void GpioPin::off(int delay)
-{
-    gpio_put(pin, false);
-    sleep_ms(delay);
+    gpio_put(pin, val);
 }
 
 /* class PwmPin */
@@ -90,7 +64,6 @@ void PwmPin::init()
         return;
     }
 
-    // Clear Interrupt Request
     pwm_clear_irq(slice);
     irq_set_exclusive_handler(PWM_IRQ_WRAP, handler);
     pwm_set_irq_enabled(slice, true);
